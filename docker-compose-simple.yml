@@ -4,11 +4,11 @@ services:
   pco-mcp:
     image: ghcr.io/chilimac02/PCO-MCP-v1.1:latest
     ports:
-      - "8000:8000"
+      - "9000:9000"
     environment:
       - PCO_APP_ID=<YOUR_APP_ID_HERE>
       - PCO_SECRET=<YOUR_SECRET_HERE>
-      - PORT=8000
+      - PORT=9000
       - LOG_LEVEL=info
     volumes:
       - ./app:/app/app
