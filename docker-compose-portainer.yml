@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: pco-mcp-server
-    image: ${DOCKER_ORG:-chilimac02}/pco-mcp-v1.1:${VERSION:-latest} 2>/dev/null || .
+    image: ghcr.io/chilimac02/pco-mcp-v1.1:latest 2>/dev/null || .
     # If you prefer to pull and run without building:
     # image: chilimac02/pco-mcp-v1.1
     ports:

@@ -4,13 +4,6 @@ on:
   push:
     branches: [ main ]
     tags: [ 'v*' ]
-  pull_request:
-    branches: [ main ]
-    paths-ignore:
-      - '**.md'
-      - '**.txt'
-      - '**.yml'
-      - '**.yaml'
 
 jobs:
   build:
@@ -38,12 +31,10 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}
+          images: ghcr.io/chilimac02/pco-mcp-v1.1
           tags: |
+            type=raw,value=latest,prefix=none
             type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
             type=sha,prefix=sha-
 
       - name: Build Docker image
@@ -62,7 +53,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ghcr.io/chilimac02/pco-mcp-v1.1:latest
           labels: ${{ steps.meta.outputs.labels }}
           load: false
           cache-from: type=gha

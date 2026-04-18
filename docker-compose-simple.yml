@@ -2,12 +2,12 @@ version: '3.8'
 
 services:
   pco-mcp:
-    image: ghcr.io/chilimac02/PCO-MCP-v1.1:latest
+    image: ghcr.io/chilimac02/pco-mcp-v1.1:latest
     ports:
       - "9000:9000"
     environment:
-      - PCO_APP_ID=<YOUR_APP_ID_HERE>
-      - PCO_SECRET=<YOUR_SECRET_HERE>
+      - PCO_APP_ID=
+      - PCO_SECRET=
       - PORT=9000
       - LOG_LEVEL=info
     volumes:
