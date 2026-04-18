@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  pco-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PYTHONDONTWRITEBYTECODE: 1
+        PYTHONUNBUFFERED: 1
+    container_name: pco-mcp-server
+    ports:
+      - "8000:8000"
+    environment:
+      - PCO_APP_ID=${PCO_APP_ID}
+      - PCO_SECRET=${PCO_SECRET}
+      - PORT=8000
+      - LOG_LEVEL=info
+    volumes:
+      - ./app:/app/app
+      - ./.env:/app/.env
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      - "app=pco-mcp"
+      - "env=production"

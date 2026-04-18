@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  pco-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pco-mcp-server
+    # Use image pull from GitHub Container Registry if built:
+    # image: chilimac02/pco-mcp-v1.1:latest
+    ports:
+      - "8000:8000"
+    environment:
+      - PCO_APP_ID=<YOUR_APP_ID_HERE>
+      - PCO_SECRET=<YOUR_SECRET_HERE>
+      - PORT=8000
+      - LOG_LEVEL=info
+    volumes:
+      - ./app:/app/app
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    labels:
+      - "app=PCO-MCP-Server"
+      - "env=production"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

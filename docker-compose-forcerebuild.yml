@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  pco-mcp:
+    image: chilimac02/pco-mcp-v1.1:latest
+    # OR for local development without caching:
+    # image: pco-mcp-server:latest
+    
+    # Build directly from context on every run:
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    
+    container_name: pco-mcp-server
+    ports:
+      - "8000:8000"
+    environment:
+      - PCO_APP_ID=${PCO_APP_ID}
+      - PCO_SECRET=${PCO_SECRET}
+      - PORT=${PORT:-8000}
+      - LOG_LEVEL=info
+    volumes:
+      - ./app:/app/app  # This ensures live code reloading
+      - ./.env:/app/.env
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        
+    # Optional: Force recreation on config change
+    restart_policy:
+      condition: on-failure

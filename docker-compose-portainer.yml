@@ -1,0 +1,55 @@
+# PCO MCP Server - Portainer Deployment Configuration
+# Copy this file to Portainer and configure with your credentials
+
+services:
+  pco-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pco-mcp-server
+    image: ${DOCKER_ORG:-chilimac02}/pco-mcp-v1.1:${VERSION:-latest} 2>/dev/null || .
+    # If you prefer to pull and run without building:
+    # image: chilimac02/pco-mcp-v1.1
+    ports:
+      - "8000:8000"  # Host:8000 -> Container:8000
+    # Change port if 8000 is already in use:
+    # ports:
+    #   - "9000:8000"
+    environment:
+      - PCO_APP_ID=${PCO_APP_ID}
+      - PCO_SECRET=${PCO_SECRET}
+      - PORT=${PORT:-8000}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - ./app:/app/app  # Mount source code for live code reloading
+      # Optional: Persist data if needed
+      # - ./data:/app/data
+    restart: unless-stopped
+    # Optional: Add health check if you set it up
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 40s
+    # Optional: Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    # Optional: Enable root read access (not recommended for production)
+    # cap_add:
+    #   - IPC_LOCK
+    # Optional: Add custom labels for easier management
+    labels:
+      - "com.github.chilimac02=PCO-MCP-Server"
+      - "com.github.mcp=true"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

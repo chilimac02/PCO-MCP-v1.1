@@ -1,17 +1,89 @@
+# Git
+.git
+.gitignore
+
+# Environment variables (not needed - set at deploy time)
+.env
+
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-.env
+*.egg
+*.egg-info/
+dist/
+build/
 .venv/
 venv/
+ENV/
+env/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+virtualenvs/
 
 # IDE
-.vscode/
 .idea/
+.vscode/
+*.swp
+*.swo
+*~
 
-# OS
+# OS files
 .DS_Store
 Thumbs.db
+.hg/
+
+# Development (use docker volumes for dev)
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Test coverage
+.nyc_output
+coverage.xml
+coverage.json
+htmlcov/
+
+# Docker
+Dockerfile
+docker-compose*.yml
+
+# Documentation (not needed in image)
+*.md
+README*
+CHANGELOG*
+
+# CI
+.github/
+*.yml
+.github/*
+
+# Local testing config
+*.local
+
+# Misc
+*.pem
+*.key
+.env.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# macOS
+.AppleDouble
+.PhotosCache
+.PhotosCacheOn
+ thumbnails (Mac)
+.Trashes
+Icon
+._*
+.Spotlight-V100
+.Trashes
