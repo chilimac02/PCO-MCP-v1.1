@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  pco-mcp:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - PCO_APP_ID=${PCO_APP_ID}
+      - PCO_SECRET=${PCO_SECRET}
+    volumes:
+      - ./app:/app/app
+    restart: unless-stopped

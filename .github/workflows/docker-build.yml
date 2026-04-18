@@ -1,0 +1,53 @@
+name: Docker Build and Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      docker:
+        image: docker:stable
+        ports:
+          - 8000:8000
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          load: true
+          tags: ${{ github.repository }}:${{ github.sha }}
+
+      - name: Run tests (if exist)
+        run: |
+          echo "Add your test command here if needed"
+          # Example: pytest tests/ -v || true
+
+  docker-compose:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Compose
+        uses: docker/setup-compose-action@v3
+
+      - name: Build and run with docker-compose
+        run: |
+          docker compose build
+          echo "Docker build successful - ready for deployment"
+          # Note: Don't run docker-compose up in CI for security
+          # Users need to provide their own .env file locally
