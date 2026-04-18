@@ -3,6 +3,13 @@ PCO MCP Server
 Exposes Planning Center Online API via MCP JSON-RPC
 """
 
+import sys
+from pathlib import Path
+
+# Add parent directories to Python path for cross-project imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, '/home/justin/.openclaw/workspace-super_coder')
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -14,7 +21,12 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-# Import PCO client (from same app directory)
+# Import PCO client - add both app and root workspace paths
+app_root = '/home/justin/.openclaw/workspace-super_coder'
+sys.path.insert(0, app_root)
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+# Now import using the app path
 from app.pco_client import PCOClient
 
 app = FastAPI(title="PCO MCP Server v1.1", version="1.1.0")
