@@ -14,9 +14,9 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-# Import PCO client
+# Import PCO client (relative import to avoid absolute path issues)
 import sys
-sys.path.append('/home/justin/.openclaw/workspace-super_coder/pco-dashboard')
+sys.path.insert(0, 'pco-dashboard/app')
 from app.pco_client import PCOClient
 
 app = FastAPI(title="PCO MCP Server v1.1", version="1.1.0")
