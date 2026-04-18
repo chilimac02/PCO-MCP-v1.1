@@ -2,12 +2,7 @@ version: '3.8'
 
 services:
   pco-mcp:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: pco-mcp-server
-    # Use image pull from GitHub Container Registry if built:
-    # image: chilimac02/pco-mcp-v1.1:latest
+    image: ghcr.io/chilimac02/PCO-MCP-v1.1:latest
     ports:
       - "8000:8000"
     environment:
