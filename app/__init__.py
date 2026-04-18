@@ -1,2 +1,2 @@
 # PCO MCP Server Package
-from app.main import app
+# Empty __init__.py to allow uvicorn to import app.main:app
