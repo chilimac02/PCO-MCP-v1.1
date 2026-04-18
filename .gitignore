@@ -16,7 +16,13 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+.venv/
+venv/
+test_app.py
 
 # OS files
 .DS_Store
 Thumbs.db
+
+# Docker
+.dockerignore
