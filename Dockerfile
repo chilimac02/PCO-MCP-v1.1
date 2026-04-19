@@ -18,10 +18,10 @@ RUN adduser --disabled-password --gecos '' appuser || true
 USER appuser
 
 # Expose port
-EXPOSE 9000
+EXPOSE 8000
 
 # Set working directory to match app package location
 WORKDIR /app/app
 
 # Run the application - app.is directly accessible as the package
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "9000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

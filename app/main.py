@@ -3,31 +3,19 @@ PCO MCP Server
 Exposes Planning Center Online API via MCP JSON-RPC
 """
 
-import sys
-from pathlib import Path
-
-# Add parent directories to Python path for cross-project imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-sys.path.insert(0, '/home/justin/.openclaw/workspace-super_coder')
-
+import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 import uvicorn
-import os
 from dotenv import load_dotenv
 
-# Load environment variables
+# Load environment variables from .env file if present
 load_dotenv()
 
-# Import PCO client - add both app and root workspace paths
-app_root = '/home/justin/.openclaw/workspace-super_coder'
-sys.path.insert(0, app_root)
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-# Now import using the app path
-from app.pco_client import PCOClient
+# Import PCO client (same directory)
+from pco_client import PCOClient
 
 app = FastAPI(title="PCO MCP Server v1.1", version="1.1.0")
 
@@ -133,7 +121,7 @@ async def process_mcp_method(method: str, params: Dict[str, Any]) -> Any:
         if not service_type_ids:
             raise ValueError("service_type_ids is required")
         if not start_date or not end_date:
-            raise ValueError("start_date and end_date are required")
+            raise ValueError("start_dateand end_date are required")
             
         attendance = pco_client.get_aggregated_attendance(
             service_type_ids, start_date, end_date
@@ -172,4 +160,5 @@ async def process_mcp_method(method: str, params: Dict[str, Any]) -> Any:
         raise ValueError(f"Unknown method: {method}")
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.getenv("PORT", "8000"))
+    uvicorn.run(app, host="0.0.0.0", port=port)
