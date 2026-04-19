@@ -1,22 +1,22 @@
 """
 Planning Center API Client
-Handles authentication and data retrieval from Planning Center Services API.
+Handles authentication and data retrieval from Planning Center People API.
 """
 
 import os
 import requests
 from base64 import b64encode
 from datetime import datetime, timedelta
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 from dotenv import load_dotenv
 
 load_dotenv()
 
 
 class PCOClient:
-    """Client for interacting with Planning Center Services API."""
+    """Client for interacting with Planning Center People API."""
 
-    BASE_URL = "https://api.planningcenteronline.com/services/v2"
+    BASE_URL = "https://api.planningcenteronline.com/people/v2"
 
     def __init__(self, app_id: str = None, secret: str = None):
         self.app_id = app_id or os.getenv("PCO_APP_ID")
@@ -48,111 +48,74 @@ class PCOClient:
         response.raise_for_status()
         return response.json()
 
-    def get_service_types(self) -> List[Dict]:
-        """Get all service types (e.g., Sunday Worship, Children's Check-in)."""
-        data = self._get("service_types")
+    # --- People Endpoints ---
+
+    def get_people(self, per_page: int = 100, offset: int = 0) -> List[Dict]:
+        """Get all people."""
+        params = {"per_page": per_page, "offset": offset}
+        data = self._get("people", params)
         return data.get("data", [])
 
-    def get_service_type_by_name(self, name: str) -> Optional[Dict]:
-        """Find a service type by name (case-insensitive)."""
-        service_types = self.get_service_types()
-        for st in service_types:
-            if st["attributes"]["name"].lower() == name.lower():
-                return st
-        return None
-
-    def get_plan_times(self, service_type_id: str, start_date: str = None, end_date: str = None) -> List[Dict]:
-        """
-        Get plan times (service instances) for a service type.
-
-        Args:
-            service_type_id: The service type ID
-            start_date: Start date filter (ISO format: YYYY-MM-DD)
-            end_date: End date filter (ISO format: YYYY-MM-DD)
-        """
-        params = {
-            "where[dates]": f"{start_date}/{end_date}" if start_date and end_date else None,
-            "per_page": 100,
-        }
-        params = {k: v for k, v in params.items() if v is not None}
-
-        data = self._get(f"service_types/{service_type_id}/plan_times", params)
+    def search_people(self, query: str) -> List[Dict]:
+        """Search people by name or email."""
+        params = {"search": query}
+        data = self._get("people", params)
         return data.get("data", [])
 
-    def get_headcounts(self, plan_time_id: str) -> List[Dict]:
-        """Get headcount data for a specific plan time."""
-        data = self._get(f"plan_times/{plan_time_id}/head_counts")
+    def get_person(self, person_id: str) -> Dict:
+        """Get a specific person by ID."""
+        return self._get(f"people/{person_id}")
+
+    def get_person_field_values(self, person_id: str) -> List[Dict]:
+        """Get custom field values for a person."""
+        data = self._get(f"people/{person_id}/field_values")
         return data.get("data", [])
 
-    def get_aggregated_attendance(
-        self,
-        service_type_ids: List[str],
-        start_date: str,
-        end_date: str,
-    ) -> Dict[str, int]:
-        """
-        Get aggregated attendance across multiple service types for a date range.
+    # --- Groups Endpoints ---
 
-        Returns:
-            Dict mapping date strings to total attendance counts
-        """
-        attendance = {}
+    def get_groups(self, per_page: int = 100) -> List[Dict]:
+        """Get all groups."""
+        data = self._get("groups", {"per_page": per_page})
+        return data.get("data", [])
 
-        for st_id in service_type_ids:
-            plan_times = self.get_plan_times(st_id, start_date, end_date)
+    def get_group(self, group_id: str) -> Dict:
+        """Get a specific group."""
+        return self._get(f"groups/{group_id}")
 
-            for pt in plan_times:
-                date_str = pt["attributes"]["starts_at"][:10]  # Extract date portion
-                headcounts = self.get_headcounts(pt["id"])
+    def get_group_members(self, group_id: str, per_page: int = 100) -> List[Dict]:
+        """Get members of a group."""
+        data = self._get(f"groups/{group_id}/memberships", {"per_page": per_page})
+        return data.get("data", [])
 
-                total = sum(hc["attributes"]["count"] for hc in headcounts)
+    def get_group_types(self) -> List[Dict]:
+        """Get all group types."""
+        data = self._get("group_types")
+        return data.get("data", [])
 
-                if date_str not in attendance:
-                    attendance[date_str] = 0
-                attendance[date_str] += total
+    # --- Tags ---
 
-        return attendance
+    def get_tags(self) -> List[Dict]:
+        """Get all tags."""
+        data = self._get("tags")
+        return data.get("data", [])
 
-    def get_year_over_year_comparison(
-        self,
-        service_type_ids: List[str],
-        reference_date: str,
-        lookback_days: int = 90,
-    ) -> Dict[str, Dict[str, int]]:
-        """
-        Get year-over-year attendance comparison.
+    def get_people_with_tag(self, tag_id: str) -> List[Dict]:
+        """Get people with a specific tag."""
+        data = self._get(f"tags/{tag_id}/people")
+        return data.get("data", [])
 
-        Args:
-            service_type_ids: List of service type IDs to include
-            reference_date: The reference date (usually today)
-            lookback_days: How many days back to compare
+    # --- Households ---
 
-        Returns:
-            Dict with 'current'and 'previous_year' attendance data
-        """
-        ref_date = datetime.fromisoformat(reference_date)
-        start_current = (ref_date - timedelta(days=lookback_days)).strftime("%Y-%m-%d")
-        end_current = ref_date.strftime("%Y-%m-%d")
+    def get_households(self, per_page: int = 100) -> List[Dict]:
+        """Get all households."""
+        data = self._get("households", {"per_page": per_page})
+        return data.get("data", [])
 
-        prev_year_start = (ref_date - timedelta(days=lookback_days + 365)).strftime("%Y-%m-%d")
-        prev_year_end = (ref_date - timedelta(days=365)).strftime("%Y-%m-%d")
+    def get_household(self, household_id: str) -> Dict:
+        """Get a specific household."""
+        return self._get(f"households/{household_id}")
 
-        current_attendance = self.get_aggregated_attendance(
-            service_type_ids, start_current, end_current
-        )
-
-        previous_attendance = self.get_aggregated_attendance(
-            service_type_ids, prev_year_start, prev_year_end
-        )
-
-        # Shift previous year dates forward by 365 days for comparison
-        shifted_previous = {}
-        for date_str, count in previous_attendance.items():
-            date_obj = datetime.fromisoformat(date_str)
-            shifted_date = (date_obj + timedelta(days=365)).strftime("%Y-%m-%d")
-            shifted_previous[shifted_date] = count
-
-        return {
-            "current": current_attendance,
-            "previous_year": shifted_previous,
-        }
+    def get_household_members(self, household_id: str) -> List[Dict]:
+        """Get people in a household."""
+        data = self._get(f"households/{household_id}/people")
+        return data.get("data", [])
