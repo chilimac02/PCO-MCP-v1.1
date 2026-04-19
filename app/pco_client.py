@@ -36,15 +36,21 @@ class PCOClient:
     def _set_auth_header(self):
         """Set Basic Auth header using app_id and secret."""
         credentials = b64encode(f"{self.app_id}:{self.secret}".encode()).decode()
-        print(f"[DEBUG] Auth header set (length: {len(credentials)})")
-        self._session.headers.update({"Authorization": f"Basic {credentials}"})
+        print(f"[DEBUG] Auth header: Basic {credentials[:30]}...")
+        self._session.headers.update({
+            "Authorization": f"Basic {credentials}",
+            "X-API-Version": "2024-01-17",  # PCO API version header
+        })
 
     def _get(self, endpoint: str, params: dict = None) -> dict:
         """Make a GET request to the PCO API."""
         url = f"{self.BASE_URL}/{endpoint}"
-        print(f"[DEBUG] Calling: {url}")
+        print(f"[DEBUG] GET {url}")
+        print(f"[DEBUG] Params: {params}")
+        print(f"[DEBUG] Headers: {dict(self._session.headers)}")
+        
         response = self._session.get(url, params=params)
-        print(f"[DEBUG] Response status: {response.status_code}")
+        print(f"[DEBUG] Response: {response.status_code} {response.text[:200]}")
         response.raise_for_status()
         return response.json()
 
