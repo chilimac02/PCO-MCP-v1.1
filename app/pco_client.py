@@ -22,6 +22,9 @@ class PCOClient:
         self.app_id = app_id or os.getenv("PCO_APP_ID")
         self.secret = secret or os.getenv("PCO_SECRET")
 
+        print(f"[DEBUG] PCO_APP_ID: {self.app_id}")
+        print(f"[DEBUG] PCO_SECRET: {self.secret[:20] if self.secret else 'None'}...")
+
         if not self.app_id or not self.secret:
             raise ValueError(
                 "PCO_APP_ID and PCO_SECRET must be set in environment or .env file"
@@ -33,12 +36,15 @@ class PCOClient:
     def _set_auth_header(self):
         """Set Basic Auth header using app_id and secret."""
         credentials = b64encode(f"{self.app_id}:{self.secret}".encode()).decode()
+        print(f"[DEBUG] Auth header set (length: {len(credentials)})")
         self._session.headers.update({"Authorization": f"Basic {credentials}"})
 
     def _get(self, endpoint: str, params: dict = None) -> dict:
         """Make a GET request to the PCO API."""
         url = f"{self.BASE_URL}/{endpoint}"
+        print(f"[DEBUG] Calling: {url}")
         response = self._session.get(url, params=params)
+        print(f"[DEBUG] Response status: {response.status_code}")
         response.raise_for_status()
         return response.json()
 
@@ -122,7 +128,7 @@ class PCOClient:
             lookback_days: How many days back to compare
 
         Returns:
-            Dict with 'current' and 'previous_year' attendance data
+            Dict with 'current'and 'previous_year' attendance data
         """
         ref_date = datetime.fromisoformat(reference_date)
         start_current = (ref_date - timedelta(days=lookback_days)).strftime("%Y-%m-%d")
